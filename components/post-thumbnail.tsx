@@ -2,6 +2,10 @@
 
 import { useState } from "react"
 
+function cleanText(text: string): string {
+  return text.replace(/\\n/g, " ").replace(/\n/g, " ")
+}
+
 export function PostThumbnail({ src, alt }: { src: string; alt: string }) {
   const [failed, setFailed] = useState(false)
 
@@ -14,7 +18,7 @@ export function PostThumbnail({ src, alt }: { src: string; alt: string }) {
           <path d="m21 15-5-5L5 21" />
         </svg>
         <span className="px-2 leading-snug">圖片無法載入</span>
-        <span className="px-2 font-mono text-[10px] leading-snug break-all">{src}</span>
+        <span className="px-2 font-mono text-[10px] leading-snug break-all">{cleanText(src)}</span>
       </div>
     )
   }
@@ -23,7 +27,7 @@ export function PostThumbnail({ src, alt }: { src: string; alt: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src || "/placeholder.svg"}
-      alt={alt}
+      alt={cleanText(alt)}
       onError={() => setFailed(true)}
       className="h-40 w-40 rounded-lg border border-border object-cover"
       crossOrigin="anonymous"
