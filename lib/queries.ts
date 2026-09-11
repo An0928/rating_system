@@ -1,5 +1,6 @@
 import { query } from "./db"
 import type { SubmissionRow, SubmissionDetail, ScoringNote } from "./types"
+import { countTurns } from "./parse-chat-log"
 
 export interface SubmissionFilters {
   group?: "structured" | "unstructured" | ""
@@ -99,7 +100,11 @@ export async function getSubmissionDetail(id: number): Promise<SubmissionDetail 
      LIMIT 1`,
     [id],
   )
-  return rows[0] ?? null
+  const detail = rows[0] ?? null
+  if (detail) {
+    detail.chatRound = countTurns(detail.chat_log)
+  }
+  return detail
 }
 
 /**

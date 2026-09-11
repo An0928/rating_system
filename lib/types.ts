@@ -36,6 +36,7 @@ export interface SubmissionDetail {
   image_url: string | null
   image_description: string | null
   likes: number | null
+  chatRound?: number
 }
 
 export interface ScoringNote {

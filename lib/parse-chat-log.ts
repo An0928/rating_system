@@ -42,3 +42,13 @@ export function parseChatLog(chatLog: string | null | undefined): ChatMessage[] 
   // Trim trailing/leading whitespace on each message text.
   return messages.map((m) => ({ role: m.role, text: m.text.trim() }))
 }
+
+/**
+ * 計算一段 chat_log 裡，AI 總共發言了幾則訊息（即總輪數）。
+ * 定義與訓練系統 actions.ts 裡 turnCount 的算法一致：
+ * 統計 role 為 "ai" 的訊息則數。
+ */
+export function countTurns(chatLog: string | null | undefined): number {
+  const messages = parseChatLog(chatLog)
+  return messages.filter((m) => m.role === "ai").length
+}

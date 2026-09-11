@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { query } from "@/lib/db"
 import { getScoringNote } from "@/lib/queries"
+import { countTurns } from "@/lib/parse-chat-log"
 
 export interface SaveNoteResult {
   ok: boolean
@@ -24,11 +25,18 @@ export async function saveScoringNote(formData: FormData): Promise<SaveNoteResul
     return { ok: false, flagged: false, note, message: "缺少 student_id 或 post_id" }
   }
 
+  // Fetch the submission to get chat_log and calculate chat_round
+  const submissionRows = await query<{ chat_log: string }>(
+    `SELECT chat_log FROM submissions WHERE student_id = ? AND post_id = ? LIMIT 1`,
+    [studentId, postId],
+  )
+  const chatRound = submissionRows.length > 0 ? countTurns(submissionRows[0].chat_log) : null
+
   await query(
-    `INSERT INTO scoring_notes (student_id, post_id, note, flagged)
-     VALUES (?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE note = VALUES(note), flagged = VALUES(flagged)`,
-    [studentId, postId, note === "" ? null : note, flagged],
+    `INSERT INTO scoring_notes (student_id, post_id, note, flagged, chat_round)
+     VALUES (?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE note = VALUES(note), flagged = VALUES(flagged), chat_round = VALUES(chat_round)`,
+    [studentId, postId, note === "" ? null : note, flagged, chatRound],
   )
 
   revalidatePath("/")
