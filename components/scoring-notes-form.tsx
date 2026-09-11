@@ -18,6 +18,54 @@ function SubmitButton() {
   )
 }
 
+type ScoreOption = 1 | 2 | 3
+
+interface ScoreFieldProps {
+  label: string
+  name: string
+  value: ScoreOption | null
+  onChange: (value: ScoreOption | null) => void
+}
+
+function ScoreField({ label, name, value, onChange }: ScoreFieldProps) {
+  const options: Array<{ value: ScoreOption; label: string }> = [
+    { value: 1, label: "1 分・空泛敷衍" },
+    { value: 2, label: "2 分・表面切題" },
+    { value: 3, label: "3 分・具體且有推理" },
+  ]
+
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-sm font-medium text-foreground">{label}</label>
+      <div className="flex flex-wrap gap-3 rounded-lg border border-input bg-card px-3 py-3">
+        {options.map((option) => (
+          <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              value={option.value}
+              checked={value === option.value}
+              onChange={() => onChange(option.value)}
+              className="w-4 h-4 cursor-pointer"
+            />
+            <span className="text-sm text-foreground">{option.label}</span>
+          </label>
+        ))}
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="radio"
+            value=""
+            checked={value === null}
+            onChange={() => onChange(null)}
+            className="w-4 h-4 cursor-pointer"
+          />
+          <span className="text-sm text-muted-foreground">未選</span>
+        </label>
+      </div>
+      <input type="hidden" name={name} value={value ?? ""} />
+    </div>
+  )
+}
+
 export function ScoringNotesForm({
   studentId,
   postId,
@@ -30,6 +78,11 @@ export function ScoringNotesForm({
   initialFlagged: boolean
 }) {
   const [flagged, setFlagged] = useState(initialFlagged)
+  const [observeScore, setObserveScore] = useState<ScoreOption | null>(null)
+  const [challengeScore, setChallengeScore] = useState<ScoreOption | null>(null)
+  const [alternativeScore, setAlternativeScore] = useState<ScoreOption | null>(null)
+  const [judgmentScore, setJudgmentScore] = useState<ScoreOption | null>(null)
+  const [judgmentIntegrated, setJudgmentIntegrated] = useState(false)
 
   const [state, formAction] = useActionState<SaveNoteResult | null, FormData>(
     async (_prev, formData) => saveScoringNote(formData),
@@ -47,6 +100,51 @@ export function ScoringNotesForm({
       <input type="hidden" name="post_id" value={postId} />
       {/* Submit the current toggle value even though the checkbox is styled as a button. */}
       <input type="hidden" name="flagged" value={flagged ? "1" : "0"} />
+
+      {/* Scoring fields */}
+      <ScoreField
+        label="觀察"
+        name="observe_score"
+        value={observeScore}
+        onChange={setObserveScore}
+      />
+
+      <ScoreField
+        label="挑戰假設"
+        name="challenge_score"
+        value={challengeScore}
+        onChange={setChallengeScore}
+      />
+
+      <ScoreField
+        label="替代觀點"
+        name="alternative_score"
+        value={alternativeScore}
+        onChange={setAlternativeScore}
+      />
+
+      <ScoreField
+        label="判斷"
+        name="judgment_score"
+        value={judgmentScore}
+        onChange={setJudgmentScore}
+      />
+
+      {/* Integration checkbox */}
+      <div className="flex flex-col gap-2">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={judgmentIntegrated}
+            onChange={(e) => setJudgmentIntegrated(e.target.checked)}
+            className="w-4 h-4 cursor-pointer"
+          />
+          <span className="text-sm font-medium text-foreground">
+            判斷階段是否有整合前面重點
+          </span>
+        </label>
+        <input type="hidden" name="judgment_integrated" value={judgmentIntegrated ? "1" : "0"} />
+      </div>
 
       <div className="flex flex-col gap-2">
         <label htmlFor="note" className="text-sm font-medium text-foreground">

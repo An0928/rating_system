@@ -13,7 +13,7 @@ export interface SaveNoteResult {
 }
 
 /**
- * Upsert the scoring note (text + flagged) for a student/post pair.
+ * Upsert the scoring note (text + flagged + scores) for a student/post pair.
  */
 export async function saveScoringNote(formData: FormData): Promise<SaveNoteResult> {
   const studentId = String(formData.get("student_id") ?? "").trim()
@@ -25,6 +25,22 @@ export async function saveScoringNote(formData: FormData): Promise<SaveNoteResul
     return { ok: false, flagged: false, note, message: "缺少 student_id 或 post_id" }
   }
 
+  // Parse score fields (1, 2, 3, or null)
+  const parseScore = (value: string | null): number | null => {
+    if (!value || value === "") return null
+    const num = parseInt(value, 10)
+    return [1, 2, 3].includes(num) ? num : null
+  }
+
+  const observeScore = parseScore(String(formData.get("observe_score") ?? ""))
+  const challengeScore = parseScore(String(formData.get("challenge_score") ?? ""))
+  const alternativeScore = parseScore(String(formData.get("alternative_score") ?? ""))
+  const judgmentScore = parseScore(String(formData.get("judgment_score") ?? ""))
+  const judgmentIntegrated =
+    formData.get("judgment_integrated") === "1" || formData.get("judgment_integrated") === "on"
+      ? 1
+      : 0
+
   // Fetch the submission to get chat_log and calculate chat_round
   const submissionRows = await query<{ chat_log: string }>(
     `SELECT chat_log FROM submissions WHERE student_id = ? AND post_id = ? LIMIT 1`,
@@ -33,10 +49,10 @@ export async function saveScoringNote(formData: FormData): Promise<SaveNoteResul
   const chatRound = submissionRows.length > 0 ? countTurns(submissionRows[0].chat_log) : null
 
   await query(
-    `INSERT INTO scoring_notes (student_id, post_id, note, flagged, chat_round)
-     VALUES (?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE note = VALUES(note), flagged = VALUES(flagged), chat_round = VALUES(chat_round)`,
-    [studentId, postId, note === "" ? null : note, flagged, chatRound],
+    `INSERT INTO scoring_notes (student_id, post_id, note, flagged, chat_round, observe_score, challenge_score, alternative_score, judgment_score, judgment_integrated)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE note = VALUES(note), flagged = VALUES(flagged), chat_round = VALUES(chat_round), observe_score = VALUES(observe_score), challenge_score = VALUES(challenge_score), alternative_score = VALUES(alternative_score), judgment_score = VALUES(judgment_score), judgment_integrated = VALUES(judgment_integrated)`,
+    [studentId, postId, note === "" ? null : note, flagged, chatRound, observeScore, challengeScore, alternativeScore, judgmentScore, judgmentIntegrated],
   )
 
   revalidatePath("/")
