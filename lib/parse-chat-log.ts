@@ -43,7 +43,7 @@ export function parseChatLog(chatLog: string | null | undefined): ChatMessage[] 
   if (current) messages.push(current)
 
   // Trim trailing/leading whitespace on each message text.
-  return messages.map((m) => ({ role: m.role, text: m.text.trim() }))
+  return messages.map((m) => ({ role: m.role, text: m.text.trim(), ...(m.stage && { stage: m.stage }) }))
 }
 
 /**
