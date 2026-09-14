@@ -71,18 +71,28 @@ export function ScoringNotesForm({
   postId,
   initialNote,
   initialFlagged,
+  initialObserveScore,
+  initialChallengeScore,
+  initialAlternativeScore,
+  initialJudgmentScore,
+  initialJudgmentIntegrated,
 }: {
   studentId: string
   postId: string
   initialNote: string
   initialFlagged: boolean
+  initialObserveScore?: 1 | 2 | 3 | null
+  initialChallengeScore?: 1 | 2 | 3 | null
+  initialAlternativeScore?: 1 | 2 | 3 | null
+  initialJudgmentScore?: 1 | 2 | 3 | null
+  initialJudgmentIntegrated?: boolean
 }) {
   const [flagged, setFlagged] = useState(initialFlagged)
-  const [observeScore, setObserveScore] = useState<ScoreOption | null>(null)
-  const [challengeScore, setChallengeScore] = useState<ScoreOption | null>(null)
-  const [alternativeScore, setAlternativeScore] = useState<ScoreOption | null>(null)
-  const [judgmentScore, setJudgmentScore] = useState<ScoreOption | null>(null)
-  const [judgmentIntegrated, setJudgmentIntegrated] = useState(false)
+  const [observeScore, setObserveScore] = useState<ScoreOption | null>(initialObserveScore ?? null)
+  const [challengeScore, setChallengeScore] = useState<ScoreOption | null>(initialChallengeScore ?? null)
+  const [alternativeScore, setAlternativeScore] = useState<ScoreOption | null>(initialAlternativeScore ?? null)
+  const [judgmentScore, setJudgmentScore] = useState<ScoreOption | null>(initialJudgmentScore ?? null)
+  const [judgmentIntegrated, setJudgmentIntegrated] = useState(initialJudgmentIntegrated ?? false)
 
   const [state, formAction] = useActionState<SaveNoteResult | null, FormData>(
     async (_prev, formData) => saveScoringNote(formData),

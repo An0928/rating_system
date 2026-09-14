@@ -111,6 +111,11 @@ export default async function SubmissionDetailPage({
           postId={detail.post_id}
           initialNote={note?.note ?? ""}
           initialFlagged={!!note?.flagged}
+          initialObserveScore={note?.observe_score ?? null}
+          initialChallengeScore={note?.challenge_score ?? null}
+          initialAlternativeScore={note?.alternative_score ?? null}
+          initialJudgmentScore={note?.judgment_score ?? null}
+          initialJudgmentIntegrated={!!note?.judgment_integrated}
         />
         {note?.updated_at && (
           <p className="mt-3 text-xs text-muted-foreground">

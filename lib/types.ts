@@ -45,6 +45,12 @@ export interface ScoringNote {
   post_id: string
   note: string | null
   flagged: number
+  chat_round: number | null
+  observe_score: 1 | 2 | 3 | null
+  challenge_score: 1 | 2 | 3 | null
+  alternative_score: 1 | 2 | 3 | null
+  judgment_score: 1 | 2 | 3 | null
+  judgment_integrated: number
   created_at: string
   updated_at: string
 }
