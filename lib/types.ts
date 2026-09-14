@@ -5,6 +5,7 @@ export type ChatRole = "ai" | "student"
 export interface ChatMessage {
   role: ChatRole
   text: string
+  stage?: string
 }
 
 export interface SubmissionRow {

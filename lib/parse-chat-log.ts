@@ -3,7 +3,9 @@ import type { ChatMessage, ChatRole } from "./types"
 // A prefix regex that matches a line beginning a new message.
 // Accepts both full-width "：" and half-width ":" colon after the speaker label,
 // and tolerates optional leading whitespace.
-const PREFIX_RE = /^\s*(AI|學生)\s*[：:]\s?(.*)$/
+// Optionally captures a stage name in square brackets (for AI messages).
+// Groups: 1=speaker, 2=stage (optional), 3=message text
+const PREFIX_RE = /^\s*(AI|學生)\s*(?:\[([^\]]+)\])?\s*[：:]\s?(.*)$/
 
 /**
  * Parse a chat_log string into an ordered array of messages.
@@ -26,7 +28,8 @@ export function parseChatLog(chatLog: string | null | undefined): ChatMessage[] 
       // Start a new message.
       if (current) messages.push(current)
       const role: ChatRole = match[1] === "AI" ? "ai" : "student"
-      current = { role, text: match[2] ?? "" }
+      const stage = match[2] // stage is captured only if it exists in the format "AI [stage]："
+      current = { role, text: match[3] ?? "", ...(stage && { stage }) }
     } else if (current) {
       // Continuation of the current message (keep the line break).
       current.text += "\n" + line
