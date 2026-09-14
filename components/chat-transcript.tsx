@@ -14,29 +14,36 @@ export function ChatTranscript({ messages }: { messages: ChatMessage[] }) {
     <div className="flex flex-col gap-3">
       {messages.map((m, i) => {
         const isStudent = m.role === "student"
+        const prevMessage = i > 0 ? messages[i - 1] : null
+        const stageChanged = prevMessage?.role === "ai" && m.role === "ai" && prevMessage?.stage !== m.stage
+
         return (
-          <div
-            key={i}
-            className={cn("flex w-full", isStudent ? "justify-end" : "justify-start")}
-          >
+          <div key={i}>
+            {stageChanged && (
+              <div className="my-2 border-t border-border/40" />
+            )}
             <div
-              className={cn(
-                "flex max-w-[80%] flex-col gap-1",
-                isStudent ? "items-end" : "items-start",
-              )}
+              className={cn("flex w-full", isStudent ? "justify-end" : "justify-start")}
             >
-              <span className="px-1 text-[11px] font-medium text-muted-foreground">
-                {isStudent ? "學生" : "AI"}
-              </span>
               <div
                 className={cn(
-                  "whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
-                  isStudent
-                    ? "rounded-br-sm bg-primary text-primary-foreground"
-                    : "rounded-bl-sm bg-secondary text-secondary-foreground",
+                  "flex max-w-[80%] flex-col gap-1",
+                  isStudent ? "items-end" : "items-start",
                 )}
               >
-                {m.text}
+                <span className="px-1 text-[11px] font-medium text-muted-foreground">
+                  {isStudent ? "學生" : m.stage ? `AI ・ ${m.stage}` : "AI"}
+                </span>
+                <div
+                  className={cn(
+                    "whitespace-pre-wrap rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
+                    isStudent
+                      ? "rounded-br-sm bg-primary text-primary-foreground"
+                      : "rounded-bl-sm bg-secondary text-secondary-foreground",
+                  )}
+                >
+                  {m.text}
+                </div>
               </div>
             </div>
           </div>
