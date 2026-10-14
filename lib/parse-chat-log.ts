@@ -5,12 +5,13 @@ import type { ChatMessage, ChatRole } from "./types"
 // and tolerates optional leading whitespace.
 // Optionally captures a stage name in square brackets (for AI messages).
 // Groups: 1=speaker, 2=stage (optional), 3=message text
-const PREFIX_RE = /^\s*(AI|學生)\s*(?:\[([^\]]+)\])?\s*[：:]\s?(.*)$/
+const PREFIX_RE = /^\s*(AI|學生|Student)\s*(?:\[([^\]]+)\])?\s*[：:]\s?(.*)$/
 
 /**
  * Parse a chat_log string into an ordered array of messages.
  *
  * Format: each turn starts on a new line with "AI：" or "學生：".
+ * English format: each turn starts on a new line with "AI：", "學生：" or "Student:" (EN transcripts).
  * A line that does NOT start with one of these prefixes is treated as a
  * continuation of the current message (preserving the newline), so multi-line
  * answers stay a single message.
